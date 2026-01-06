@@ -2303,6 +2303,11 @@ async function toggleBroadcast() {
         badge.textContent = 'EN DIRECT';
         badge.classList.add('active');
         dot.classList.add('live');
+        
+        log(`📹 Video: ${localVideoTrack ? 'ready' : 'missing'}, enabled: ${isCameraOn}`, 'info');
+        log(`🎤 Audio: ${localAudioTrack ? 'ready' : 'missing'}, enabled: ${isMicOn}`, 'info');
+        
+        stage.refreshStrategy();
         log('🔴 Diffusion démarrée', 'success');
         addChat('Système', `${tokenPayload.user_id || 'Vous'} diffuse`, true);
     } else {
@@ -2312,10 +2317,10 @@ async function toggleBroadcast() {
         badge.textContent = 'Inactif';
         badge.classList.remove('active');
         dot.classList.remove('live');
-        log('⏹ Diffusion arrêtée');
+        
+        stage.refreshStrategy();
+        log('⏹ Diffusion arrêtée', 'success');
     }
-    
-    stage.refreshStrategy();
 }
 
 // ==========================================
@@ -2454,7 +2459,7 @@ async function connectToStage() {
                 const streams = [];
                 if (localVideoTrack && isCameraOn) {
                     streams.push(new IVSBroadcastClient.LocalStageStream(localVideoTrack, {
-                        simulcast: { enabled: false }, minBitrate: 2500, maxBitrate: 8500, maxFramerate: 30
+                        simulcast: { enabled: false }, maxBitrate: 2000, maxFramerate: 30
                     }));
                 }
                 if (localAudioTrack && isMicOn) {
