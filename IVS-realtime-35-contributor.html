@@ -1,0 +1,2685 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IVS Studio v35</title>
+    <meta name="description" content="Application de streaming IVS Real-time">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- IVS SDK -->
+    <script src="https://web-broadcast.live-video.net/1.24.0/amazon-ivs-web-broadcast.js"></script>
+    
+    <style>
+/* ============================================
+   CSS VARIABLES - Design System
+   ============================================ */
+:root {
+    /* Spacing Scale */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --space-3xl: 64px;
+    
+    /* Typography */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 13px;
+    --font-size-base: 15px;
+    --font-size-lg: 18px;
+    --font-size-xl: 24px;
+    --font-size-2xl: 32px;
+    
+    /* Border Radius */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+    
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-base: 250ms ease;
+    --transition-slow: 350ms ease;
+    
+    /* Z-Index Scale */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-modal: 300;
+    --z-tooltip: 400;
+}
+
+/* Dark Theme (Default) */
+[data-theme="dark"] {
+    --color-bg: #09090b;
+    --color-bg-elevated: #18181b;
+    --color-bg-subtle: #27272a;
+    --color-bg-muted: #3f3f46;
+    
+    --color-text: #fafafa;
+    --color-text-secondary: #a1a1aa;
+    --color-text-muted: #71717a;
+    
+    --color-border: #27272a;
+    --color-border-subtle: #3f3f46;
+    
+    --color-primary: #3b82f6;
+    --color-primary-hover: #60a5fa;
+    --color-primary-muted: rgba(59, 130, 246, 0.15);
+    
+    --color-success: #22c55e;
+    --color-success-muted: rgba(34, 197, 94, 0.15);
+    
+    --color-warning: #f59e0b;
+    --color-warning-muted: rgba(245, 158, 11, 0.15);
+    
+    --color-danger: #ef4444;
+    --color-danger-muted: rgba(239, 68, 68, 0.15);
+    
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+    --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+    --color-bg: #ffffff;
+    --color-bg-elevated: #f4f4f5;
+    --color-bg-subtle: #e4e4e7;
+    --color-bg-muted: #d4d4d8;
+    
+    --color-text: #18181b;
+    --color-text-secondary: #52525b;
+    --color-text-muted: #a1a1aa;
+    
+    --color-border: #e4e4e7;
+    --color-border-subtle: #d4d4d8;
+    
+    --color-primary: #2563eb;
+    --color-primary-hover: #3b82f6;
+    --color-primary-muted: rgba(37, 99, 235, 0.1);
+    
+    --color-success: #16a34a;
+    --color-success-muted: rgba(22, 163, 74, 0.1);
+    
+    --color-warning: #d97706;
+    --color-warning-muted: rgba(217, 119, 6, 0.1);
+    
+    --color-danger: #dc2626;
+    --color-danger-muted: rgba(220, 38, 38, 0.1);
+    
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.2);
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    color: var(--color-text);
+    background: var(--color-bg);
+    min-height: 100vh;
+    transition: background var(--transition-base), color var(--transition-base);
+}
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+.app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--space-md);
+}
+
+.main {
+    flex: 1;
+    padding: var(--space-lg) 0;
+}
+
+/* ============================================
+   NAVBAR
+   ============================================ */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.navbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    gap: var(--space-lg);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.navbar-logo {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--color-primary), #8b5cf6);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: var(--font-size-sm);
+}
+
+.navbar-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.navbar-status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-elevated);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-text-muted);
+    transition: all var(--transition-base);
+}
+
+.status-indicator.connected {
+    background: var(--color-success);
+    box-shadow: 0 0 8px var(--color-success);
+}
+
+.status-indicator.connecting {
+    background: var(--color-warning);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-indicator.error {
+    background: var(--color-danger);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.95); }
+}
+
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Button Variants */
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-success {
+    background: var(--color-success);
+    color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+.btn-danger {
+    background: var(--color-danger);
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border-color: var(--color-border);
+}
+
+.btn-ghost:hover:not(:disabled) {
+    background: var(--color-bg-elevated);
+    color: var(--color-text);
+    border-color: var(--color-border-subtle);
+}
+
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: var(--radius-md);
+}
+
+/* Button Sizes */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: var(--font-size-xs);
+}
+
+.btn-lg {
+    padding: var(--space-md) var(--space-xl);
+    font-size: var(--font-size-base);
+    border-radius: var(--radius-lg);
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    position: relative;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+}
+
+.theme-toggle:hover {
+    background: var(--color-bg-subtle);
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.card {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.card-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-body {
+    padding: var(--space-lg);
+}
+
+.card-footer {
+    padding: var(--space-md) var(--space-lg);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-subtle);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.form-label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-muted);
+}
+
+.form-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.form-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
+}
+
+.form-row {
+    display: grid;
+    gap: var(--space-md);
+}
+
+.form-row-2 { grid-template-columns: repeat(2, 1fr); }
+.form-row-3 { grid-template-columns: repeat(3, 1fr); }
+.form-row-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* ============================================
+   HERO SECTION - Main Actions
+   ============================================ */
+.hero {
+    text-align: center;
+    padding: var(--space-2xl) 0;
+}
+
+.hero-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    margin-bottom: var(--space-sm);
+    background: linear-gradient(135deg, var(--color-text), var(--color-text-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-xl);
+}
+
+.hero-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.btn-hero {
+    min-width: 280px;
+    padding: var(--space-md) var(--space-xl);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-hero:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.btn-hero-secondary {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    box-shadow: none;
+    min-width: auto;
+    padding: var(--space-sm) var(--space-lg);
+    font-size: var(--font-size-sm);
+}
+
+.btn-hero-secondary:hover:not(:disabled) {
+    background: var(--color-bg-elevated);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    box-shadow: none;
+    transform: none;
+}
+
+/* Stage Selector in Hero */
+.hero-config {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+    width: 100%;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-config .form-group {
+    width: 100%;
+}
+
+.hero-config .form-input,
+.hero-config .form-select {
+    text-align: center;
+    padding: var(--space-md);
+    font-size: var(--font-size-base);
+}
+
+/* ============================================
+   COLLAPSIBLE PANELS
+   ============================================ */
+.collapsible {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-md);
+    overflow: hidden;
+}
+
+.collapsible-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--space-md) var(--space-lg);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-align: left;
+    transition: all var(--transition-fast);
+}
+
+.collapsible-trigger:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-text);
+}
+
+.collapsible-trigger-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.collapsible-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--transition-fast);
+}
+
+.collapsible.open .collapsible-icon {
+    transform: rotate(90deg);
+}
+
+.collapsible-badge {
+    padding: 2px 8px;
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.collapsible-badge.active {
+    background: var(--color-danger-muted);
+    color: var(--color-danger);
+}
+
+.collapsible-content {
+    display: none;
+    padding: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+.collapsible.open .collapsible-content {
+    display: block;
+    animation: slideDown var(--transition-fast);
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   CONTRIBUTOR PANEL
+   ============================================ */
+.contributor-grid {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+}
+
+.preview-card {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: var(--color-bg);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+}
+
+.preview-card video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+}
+
+.preview-badge {
+    position: absolute;
+    bottom: var(--space-sm);
+    left: var(--space-sm);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    color: white;
+}
+
+.preview-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-text-muted);
+}
+
+.preview-dot.live {
+    background: var(--color-danger);
+    animation: pulse 1s infinite;
+}
+
+.contributor-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.device-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+}
+
+/* VU Meter */
+.vu-meter {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.vu-meter-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    min-width: 70px;
+}
+
+.vu-meter-track {
+    flex: 1;
+    height: 6px;
+    background: var(--color-bg-subtle);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.vu-meter-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--color-success), var(--color-warning) 80%, var(--color-danger));
+    border-radius: var(--radius-full);
+    transition: width 50ms ease-out;
+}
+
+.vu-meter-value {
+    font-size: var(--font-size-xs);
+    font-family: 'SF Mono', Monaco, monospace;
+    color: var(--color-text-muted);
+    min-width: 45px;
+    text-align: right;
+}
+
+/* Media Toggles */
+.media-toggles {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.toggle-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.toggle-btn:hover {
+    background: var(--color-bg-subtle);
+}
+
+.toggle-btn.active {
+    background: var(--color-success-muted);
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.toggle-btn.off {
+    background: var(--color-danger-muted);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+/* Broadcast Button */
+.broadcast-btn {
+    padding: var(--space-md) var(--space-xl);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+}
+
+.broadcast-btn.live {
+    background: var(--color-danger);
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    50% { box-shadow: 0 0 20px 4px rgba(239, 68, 68, 0.2); }
+}
+
+/* ============================================
+   TOKEN CONFIG
+   ============================================ */
+.token-section {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+.token-section-title {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+}
+
+.token-buttons {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.token-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.token-btn:hover {
+    background: var(--color-primary-muted);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.token-info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-md);
+}
+
+.token-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.token-info-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.token-info-value {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+/* Stage Management */
+.stage-management {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+.stage-management .form-input {
+    flex: 1;
+}
+
+/* ============================================
+   VIDEO GRID
+   ============================================ */
+.video-section {
+    margin-top: var(--space-lg);
+}
+
+.video-controls-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-md);
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.volume-slider {
+    width: 100px;
+    accent-color: var(--color-primary);
+}
+
+.volume-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    min-width: 40px;
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--space-md);
+}
+
+.video-grid.single { grid-template-columns: 1fr; }
+.video-grid.dual { grid-template-columns: repeat(2, 1fr); }
+
+.video-card {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: var(--color-bg-elevated);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: border-color var(--transition-fast);
+}
+
+.video-card.active {
+    border-color: var(--color-success);
+}
+
+.video-card.local {
+    border-color: var(--color-primary);
+}
+
+.video-card video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #000;
+}
+
+.video-overlay {
+    position: absolute;
+    bottom: var(--space-md);
+    left: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.video-name {
+    padding: 6px 12px;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: white;
+}
+
+.video-audio-badge {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    border-radius: 50%;
+    font-size: var(--font-size-xs);
+    color: var(--color-success);
+}
+
+.video-audio-badge.muted {
+    color: var(--color-danger);
+}
+
+.video-actions {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.video-card:hover .video-actions {
+    opacity: 1;
+}
+
+.video-action-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.video-action-btn:hover {
+    background: rgba(0,0,0,0.9);
+    transform: scale(1.05);
+}
+
+.video-action-btn.muted {
+    color: var(--color-danger);
+}
+
+/* Empty State */
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3xl);
+    text-align: center;
+}
+
+.empty-state-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: var(--space-md);
+    color: var(--color-text-muted);
+    opacity: 0.5;
+}
+
+.empty-state-text {
+    color: var(--color-text-muted);
+    max-width: 300px;
+}
+
+/* ============================================
+   CHAT
+   ============================================ */
+.chat-card {
+    display: flex;
+    flex-direction: column;
+    height: 320px;
+    margin-top: var(--space-md);
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-md);
+}
+
+.chat-message {
+    margin-bottom: var(--space-md);
+    animation: fadeInUp var(--transition-fast);
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-message-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: 2px;
+}
+
+.chat-message-author {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.chat-message-time {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.chat-message-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    line-height: 1.5;
+}
+
+.chat-message.system .chat-message-text {
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+.chat-input-area {
+    display: flex;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-subtle);
+}
+
+.chat-input {
+    flex: 1;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.footer {
+    padding: var(--space-lg) 0;
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+}
+
+.footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+.footer-links {
+    display: flex;
+    gap: var(--space-lg);
+}
+
+.footer-link {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.footer-link:hover {
+    color: var(--color-text);
+}
+
+/* ============================================
+   LOG PANEL
+   ============================================ */
+.log-panel {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: var(--space-md);
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    font-size: var(--font-size-xs);
+}
+
+.log-entry {
+    padding: 3px 0;
+    color: var(--color-text-secondary);
+}
+
+.log-entry.success { color: var(--color-success); }
+.log-entry.error { color: var(--color-danger); }
+.log-entry.warning { color: var(--color-warning); }
+
+/* ============================================
+   STATUS MESSAGES
+   ============================================ */
+.status-message {
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-md);
+    display: none;
+}
+
+.status-message.visible { display: block; }
+.status-message.loading { background: var(--color-primary-muted); color: var(--color-primary); }
+.status-message.success { background: var(--color-success-muted); color: var(--color-success); }
+.status-message.error { background: var(--color-danger-muted); color: var(--color-danger); }
+
+/* ============================================
+   FULLSCREEN MODE
+   ============================================ */
+body.fullscreen-mode {
+    overflow: hidden;
+}
+
+body.fullscreen-mode .hide-fullscreen {
+    display: none !important;
+}
+
+body.fullscreen-mode .main {
+    padding: 0;
+}
+
+body.fullscreen-mode .container {
+    max-width: 100%;
+    padding: 0;
+}
+
+body.fullscreen-mode .video-grid {
+    height: 100vh;
+    gap: 0;
+}
+
+body.fullscreen-mode .video-card {
+    border-radius: 0;
+    border-width: 0;
+}
+
+.fullscreen-controls {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--space-lg) var(--space-xl);
+    background: linear-gradient(transparent, rgba(0,0,0,0.9));
+    justify-content: center;
+    gap: var(--space-md);
+    z-index: var(--z-modal);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+body.fullscreen-mode .fullscreen-controls {
+    display: flex;
+}
+
+body.fullscreen-mode:hover .fullscreen-controls {
+    opacity: 1;
+}
+
+.fs-btn {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    color: white;
+    font-size: var(--font-size-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.fs-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.1);
+}
+
+.fs-volume-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 0 var(--space-md);
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-full);
+}
+
+.fs-volume-group input[type="range"] {
+    width: 100px;
+    accent-color: var(--color-primary);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+    .contributor-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .preview-card {
+        max-width: 320px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-center {
+        display: none;
+    }
+    
+    .hero-title {
+        font-size: var(--font-size-xl);
+    }
+    
+    .form-row-2,
+    .form-row-3,
+    .form-row-4 {
+        grid-template-columns: 1fr;
+    }
+    
+    .device-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .video-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .token-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .stage-management {
+        flex-direction: column;
+    }
+    
+    .footer-inner {
+        flex-direction: column;
+        gap: var(--space-md);
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-hero {
+        min-width: 100%;
+    }
+    
+    .media-toggles {
+        flex-direction: column;
+    }
+    
+    .token-buttons {
+        flex-direction: column;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- ============================================
+             NAVBAR
+             ============================================ -->
+        <nav class="navbar hide-fullscreen">
+            <div class="container">
+                <div class="navbar-inner">
+                    <a href="#" class="navbar-brand">
+                        <div class="navbar-logo">IV</div>
+                        <span>IVS Studio</span>
+                    </a>
+                    
+                    <div class="navbar-center">
+                        <div class="navbar-status">
+                            <div class="status-indicator" id="statusIndicator"></div>
+                            <span id="statusText">Déconnecté</span>
+                            <span id="participantCount" style="margin-left: 8px; opacity: 0.7;">• 0 participant</span>
+                        </div>
+                    </div>
+                    
+                    <div class="navbar-actions">
+                        <button 
+                            class="btn btn-icon theme-toggle" 
+                            id="themeToggle"
+                            onclick="toggleTheme()"
+                            aria-label="Passer au mode clair"
+                            title="Passer au mode clair"
+                        >
+                            <span id="themeIcon">☀️</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- ============================================
+             MAIN CONTENT
+             ============================================ -->
+        <main class="main">
+            <div class="container">
+                
+                <!-- Hero Section -->
+                <section class="hero hide-fullscreen">
+                    <h1 class="hero-title">Bienvenue sur IVS Studio</h1>
+                    <p class="hero-subtitle">Diffusez et regardez en temps réel avec Amazon IVS</p>
+                    
+                    <div class="hero-config">
+                        <div class="form-group">
+                            <select class="form-select" id="stageSelect" aria-label="Sélectionner un stage">
+                                <option value="">Chargement des stages...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input 
+                                type="text" 
+                                class="form-input" 
+                                id="userNameInput" 
+                                placeholder="Votre nom (optionnel)"
+                                aria-label="Votre nom"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="hero-actions">
+                        <button 
+                            class="btn btn-primary btn-hero" 
+                            id="btnWatch"
+                            onclick="connectAsViewer()"
+                            disabled
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            Voir le direct
+                        </button>
+                        <button 
+                            class="btn btn-hero-secondary" 
+                            id="btnBroadcast"
+                            onclick="connectAsContributor()"
+                            disabled
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M23 7l-7 5 7 5V7z"></path>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                            </svg>
+                            Intervenir (diffuser)
+                        </button>
+                    </div>
+                    
+                    <div id="statusMessage" class="status-message"></div>
+                </section>
+
+                <!-- Advanced Configuration -->
+                <div class="collapsible hide-fullscreen" id="configPanel">
+                    <button class="collapsible-trigger" onclick="toggleCollapsible('configPanel')" aria-expanded="false">
+                        <span class="collapsible-trigger-content">
+                            <svg class="collapsible-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                            <span>⚙️ Configuration avancée</span>
+                        </span>
+                    </button>
+                    <div class="collapsible-content">
+                        <div class="form-row-4">
+                            <div class="form-group">
+                                <label class="form-label" for="durationInput">Durée token (min)</label>
+                                <input type="number" class="form-input" id="durationInput" value="60" min="1" max="1440">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="apiUrlInput">URL API</label>
+                                <input type="text" class="form-input" id="apiUrlInput" value="https://8o76zphwpa.execute-api.eu-central-1.amazonaws.com/prod">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="tokenInput">Token manuel</label>
+                                <input type="text" class="form-input" id="tokenInput" placeholder="Coller un JWT...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">&nbsp;</label>
+                                <button class="btn btn-ghost" onclick="loadManualToken()" style="width: 100%;">📋 Charger</button>
+                            </div>
+                        </div>
+                        
+                        <div class="token-section">
+                            <p class="token-section-title">Générer un token en tant que :</p>
+                            <div class="token-buttons">
+                                <button class="token-btn" onclick="generateToken('SUBSCRIBE')">👁️ Viewer</button>
+                                <button class="token-btn" onclick="generateToken('PUBLISH')">📹 Publisher</button>
+                                <button class="token-btn" onclick="generateToken('PUBLISH,SUBSCRIBE')">🎭 Les deux</button>
+                            </div>
+                            
+                            <div class="token-info" id="tokenInfo" style="display: none;">
+                                <div class="token-info-item">
+                                    <span class="token-info-label">User ID</span>
+                                    <span class="token-info-value" id="infoUserId">-</span>
+                                </div>
+                                <div class="token-info-item">
+                                    <span class="token-info-label">Permissions</span>
+                                    <span class="token-info-value" id="infoPermissions">-</span>
+                                </div>
+                                <div class="token-info-item">
+                                    <span class="token-info-label">Expiration</span>
+                                    <span class="token-info-value" id="infoExpiration">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stage-management">
+                            <input type="text" class="form-input" id="newStageName" placeholder="Nom du nouveau stage">
+                            <button class="btn btn-success btn-sm" onclick="createStage()">➕ Créer</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteStage()">🗑️ Supprimer</button>
+                            <button class="btn btn-ghost btn-sm" onclick="loadStages()">🔄</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contributor Panel -->
+                <div class="collapsible hide-fullscreen" id="contributorPanel" style="display: none;">
+                    <button class="collapsible-trigger" onclick="toggleCollapsible('contributorPanel')" aria-expanded="false">
+                        <span class="collapsible-trigger-content">
+                            <svg class="collapsible-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                            <span>🎥 Mode Contributeur</span>
+                        </span>
+                        <span class="collapsible-badge" id="contributorBadge">Inactif</span>
+                    </button>
+                    <div class="collapsible-content">
+                        <div class="contributor-grid">
+                            <div class="preview-card">
+                                <video id="localPreview" autoplay muted playsinline></video>
+                                <div class="preview-badge">
+                                    <div class="preview-dot" id="previewDot"></div>
+                                    <span>Aperçu</span>
+                                </div>
+                            </div>
+                            
+                            <div class="contributor-controls">
+                                <div class="device-grid">
+                                    <div class="form-group">
+                                        <label class="form-label">Caméra</label>
+                                        <select class="form-select" id="cameraSelect" onchange="switchCamera()">
+                                            <option>Initialisation...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Microphone</label>
+                                        <select class="form-select" id="micSelect" onchange="switchMicrophone()">
+                                            <option>Initialisation...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="vu-meter">
+                                    <span class="vu-meter-label">🎤 Niveau</span>
+                                    <div class="vu-meter-track">
+                                        <div class="vu-meter-fill" id="vuMeterFill"></div>
+                                    </div>
+                                    <span class="vu-meter-value" id="vuMeterValue">-∞ dB</span>
+                                </div>
+                                
+                                <div class="media-toggles">
+                                    <button class="toggle-btn active" id="cameraToggle" onclick="toggleCamera()" disabled>
+                                        📹 Caméra
+                                    </button>
+                                    <button class="toggle-btn active" id="micToggle" onclick="toggleMic()" disabled>
+                                        🎤 Micro
+                                    </button>
+                                </div>
+                                
+                                <button class="btn btn-success broadcast-btn" id="broadcastBtn" onclick="toggleBroadcast()" disabled>
+                                    🚀 Démarrer la diffusion
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="mediaWarning" style="display: none; padding: 12px; background: var(--color-warning-muted); color: var(--color-warning); border-radius: var(--radius-md); margin-top: var(--space-md); font-size: var(--font-size-sm);">
+                            ⏳ En attente d'autorisation caméra/micro...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Section -->
+                <section class="video-section">
+                    <div class="video-controls-bar hide-fullscreen" id="videoControlsBar" style="display: none;">
+                        <div class="volume-control">
+                            <button class="btn btn-icon btn-ghost" onclick="toggleGlobalMute()" id="globalMuteBtn" title="Couper/Activer le son">
+                                🔊
+                            </button>
+                            <input type="range" class="volume-slider" min="0" max="100" value="100" id="volumeSlider" onchange="setVolume(this.value)">
+                            <span class="volume-label" id="volumeLabel">100%</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-ghost btn-sm" onclick="enterFullscreen()">⛶ Plein écran</button>
+                            <button class="btn btn-danger btn-sm" onclick="disconnect()">Déconnecter</button>
+                        </div>
+                    </div>
+                    
+                    <div class="video-grid" id="videoGrid">
+                        <div class="empty-state">
+                            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                            </svg>
+                            <p class="empty-state-text">Sélectionnez un stage et cliquez sur "Voir le direct" ou "Intervenir" pour commencer</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chat -->
+                <div class="card chat-card hide-fullscreen" id="chatCard" style="display: none;">
+                    <div class="card-header">
+                        <span class="card-title">💬 Chat</span>
+                        <span id="chatStatus" style="font-size: var(--font-size-xs); color: var(--color-text-muted);">Déconnecté</span>
+                    </div>
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" class="form-input chat-input" id="chatInput" placeholder="Écrivez un message..." onkeypress="handleChatKey(event)">
+                        <button class="btn btn-primary btn-sm" onclick="sendChat()">Envoyer</button>
+                    </div>
+                </div>
+
+                <!-- Action Bar -->
+                <div class="card hide-fullscreen" style="margin-top: var(--space-md);">
+                    <div class="card-body" style="display: flex; gap: var(--space-sm); justify-content: center; flex-wrap: wrap;">
+                        <button class="btn btn-primary" id="connectBtn" onclick="connectToStage()" disabled>Se connecter</button>
+                        <button class="btn btn-danger" id="disconnectBtn" onclick="disconnect()" disabled>Se déconnecter</button>
+                        <button class="btn btn-ghost" onclick="initMedia()">🎥 Initialiser média</button>
+                        <button class="btn btn-ghost" onclick="runDiagnostic()">🔍 Diagnostic</button>
+                    </div>
+                </div>
+
+                <!-- Logs -->
+                <div class="card hide-fullscreen" style="margin-top: var(--space-md);">
+                    <div class="card-header">
+                        <span class="card-title">Journal</span>
+                        <button class="btn btn-ghost btn-sm" onclick="clearLogs()">Effacer</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="log-panel" id="logPanel"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============================================
+             FOOTER
+             ============================================ -->
+        <footer class="footer hide-fullscreen">
+            <div class="container">
+                <div class="footer-inner">
+                    <span>IVS Studio v35 • Propulsé par Amazon IVS Real-time</span>
+                    <div class="footer-links">
+                        <a href="https://docs.aws.amazon.com/ivs/" class="footer-link" target="_blank" rel="noopener">Documentation</a>
+                        <a href="https://github.com/aws-samples/amazon-ivs-real-time-for-web-demo" class="footer-link" target="_blank" rel="noopener">GitHub</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Fullscreen Controls -->
+        <div class="fullscreen-controls">
+            <button class="fs-btn" onclick="toggleGlobalMute()" id="fsMuteBtn" title="Couper/Activer le son">🔊</button>
+            <div class="fs-volume-group">
+                <input type="range" min="0" max="100" value="100" id="fsVolumeSlider" onchange="setVolume(this.value)">
+            </div>
+            <button class="fs-btn" onclick="exitFullscreen()" title="Quitter le plein écran">✕</button>
+        </div>
+    </div>
+
+    <!-- ============================================
+         JAVASCRIPT
+         ============================================ -->
+    <script>
+// ==========================================
+// CONFIGURATION
+// ==========================================
+const API_URL = 'https://8o76zphwpa.execute-api.eu-central-1.amazonaws.com/prod';
+
+// ==========================================
+// STATE
+// ==========================================
+let availableStages = [];
+let currentToken = null;
+let tokenPayload = null;
+let stage = null;
+let participants = new Map();
+let participantStreams = new Map();
+let participantMuted = new Map();
+
+// Media
+let localVideoTrack = null;
+let localAudioTrack = null;
+let isPublishing = false;
+let isCameraOn = true;
+let isMicOn = true;
+let mediaReady = false;
+
+// Audio
+let globalVolume = 1;
+let globalMuted = false;
+let audioCtx = null;
+let analyser = null;
+let vuAnimId = null;
+
+// ==========================================
+// THEME TOGGLE
+// ==========================================
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('ivs-theme', newTheme);
+    
+    // Update button - shows what clicking will DO (target action)
+    const btn = document.getElementById('themeToggle');
+    const icon = document.getElementById('themeIcon');
+    
+    if (newTheme === 'dark') {
+        // Currently dark, clicking will switch to light
+        icon.textContent = '☀️';
+        btn.setAttribute('aria-label', 'Passer au mode clair');
+        btn.setAttribute('title', 'Passer au mode clair');
+    } else {
+        // Currently light, clicking will switch to dark
+        icon.textContent = '🌙';
+        btn.setAttribute('aria-label', 'Passer au mode sombre');
+        btn.setAttribute('title', 'Passer au mode sombre');
+    }
+    
+    log(`🎨 Thème: ${newTheme === 'dark' ? 'sombre' : 'clair'}`, 'info');
+}
+
+function loadTheme() {
+    const saved = localStorage.getItem('ivs-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    
+    const btn = document.getElementById('themeToggle');
+    const icon = document.getElementById('themeIcon');
+    
+    if (saved === 'dark') {
+        icon.textContent = '☀️';
+        btn.setAttribute('aria-label', 'Passer au mode clair');
+        btn.setAttribute('title', 'Passer au mode clair');
+    } else {
+        icon.textContent = '🌙';
+        btn.setAttribute('aria-label', 'Passer au mode sombre');
+        btn.setAttribute('title', 'Passer au mode sombre');
+    }
+}
+
+// ==========================================
+// UI HELPERS
+// ==========================================
+function log(msg, type = 'info') {
+    const panel = document.getElementById('logPanel');
+    const entry = document.createElement('div');
+    entry.className = `log-entry ${type}`;
+    const time = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    entry.textContent = `${time} ${msg}`;
+    panel.appendChild(entry);
+    panel.scrollTop = panel.scrollHeight;
+    console.log(`[IVS] ${msg}`);
+}
+
+function clearLogs() {
+    document.getElementById('logPanel').innerHTML = '';
+    log('Journal effacé');
+}
+
+function toggleCollapsible(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('open');
+    const trigger = el.querySelector('.collapsible-trigger');
+    trigger.setAttribute('aria-expanded', el.classList.contains('open'));
+}
+
+function showStatus(msg, type) {
+    const el = document.getElementById('statusMessage');
+    el.textContent = msg;
+    el.className = `status-message visible ${type}`;
+}
+
+function hideStatus() {
+    document.getElementById('statusMessage').className = 'status-message';
+}
+
+function updateConnectionStatus(state) {
+    const indicator = document.getElementById('statusIndicator');
+    const text = document.getElementById('statusText');
+    
+    indicator.className = 'status-indicator';
+    
+    switch(state) {
+        case 'CONNECTED':
+        case IVSBroadcastClient?.StageConnectionState?.CONNECTED:
+            indicator.classList.add('connected');
+            text.textContent = 'Connecté';
+            document.getElementById('videoControlsBar').style.display = 'flex';
+            document.getElementById('chatCard').style.display = 'flex';
+            break;
+        case 'CONNECTING':
+            indicator.classList.add('connecting');
+            text.textContent = 'Connexion...';
+            break;
+        case 'ERROR':
+            indicator.classList.add('error');
+            text.textContent = 'Erreur';
+            break;
+        default:
+            text.textContent = 'Déconnecté';
+            document.getElementById('videoControlsBar').style.display = 'none';
+            document.getElementById('chatCard').style.display = 'none';
+    }
+}
+
+function updateParticipantCount() {
+    const count = participants.size;
+    document.getElementById('participantCount').textContent = `• ${count} participant${count > 1 ? 's' : ''}`;
+}
+
+function updateTokenDisplay() {
+    if (!tokenPayload) {
+        document.getElementById('tokenInfo').style.display = 'none';
+        return;
+    }
+    
+    document.getElementById('tokenInfo').style.display = 'grid';
+    document.getElementById('infoUserId').textContent = tokenPayload.user_id || tokenPayload.jti?.slice(0,8) || '-';
+    
+    const caps = tokenPayload.capabilities || {};
+    const perms = [];
+    if (caps.allow_publish) perms.push('📹 Publier');
+    if (caps.allow_subscribe) perms.push('👁️ Voir');
+    document.getElementById('infoPermissions').textContent = perms.join(', ') || '-';
+    
+    if (tokenPayload.exp) {
+        const exp = new Date(tokenPayload.exp * 1000);
+        document.getElementById('infoExpiration').textContent = exp.toLocaleTimeString('fr-FR');
+    } else {
+        document.getElementById('infoExpiration').textContent = '-';
+    }
+}
+
+// ==========================================
+// VU METER
+// ==========================================
+function initVuMeter() {
+    if (!localAudioTrack || audioCtx) return;
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.3;
+        const source = audioCtx.createMediaStreamSource(new MediaStream([localAudioTrack]));
+        source.connect(analyser);
+        updateVuMeter();
+        log('📊 VU-mètre initialisé', 'success');
+    } catch (e) {
+        log(`❌ VU-mètre: ${e.message}`, 'error');
+    }
+}
+
+function updateVuMeter() {
+    if (!analyser) return;
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(data);
+    const avg = data.reduce((a,b) => a+b, 0) / data.length;
+    const pct = Math.min(100, (avg / 128) * 100);
+    const db = avg > 0 ? Math.round(20 * Math.log10(avg / 255)) : -60;
+    document.getElementById('vuMeterFill').style.width = `${pct}%`;
+    document.getElementById('vuMeterValue').textContent = db > -60 ? `${db} dB` : '-∞ dB';
+    vuAnimId = requestAnimationFrame(updateVuMeter);
+}
+
+function stopVuMeter() {
+    if (vuAnimId) { cancelAnimationFrame(vuAnimId); vuAnimId = null; }
+    if (audioCtx) { audioCtx.close(); audioCtx = null; analyser = null; }
+}
+
+// ==========================================
+// CHAT
+// ==========================================
+function addChat(author, text, isSystem = false) {
+    const container = document.getElementById('chatMessages');
+    const msg = document.createElement('div');
+    msg.className = `chat-message ${isSystem ? 'system' : ''}`;
+    const time = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+    msg.innerHTML = `
+        <div class="chat-message-header">
+            <span class="chat-message-author">${author}</span>
+            <span class="chat-message-time">${time}</span>
+        </div>
+        <div class="chat-message-text">${text}</div>
+    `;
+    container.appendChild(msg);
+    container.scrollTop = container.scrollHeight;
+}
+
+function sendChat() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const name = document.getElementById('userNameInput').value.trim() || 'Vous';
+    addChat(name, text);
+    input.value = '';
+}
+
+function handleChatKey(e) {
+    if (e.key === 'Enter') sendChat();
+}
+
+// ==========================================
+// VOLUME / FULLSCREEN
+// ==========================================
+function setVolume(val) {
+    globalVolume = val / 100;
+    document.getElementById('volumeLabel').textContent = `${val}%`;
+    document.getElementById('volumeSlider').value = val;
+    document.getElementById('fsVolumeSlider').value = val;
+    
+    document.querySelectorAll('.video-card video').forEach(v => {
+        const card = v.closest('.video-card');
+        const pid = card.dataset.participantId;
+        if (!card.classList.contains('local') && !participantMuted.get(pid)) {
+            v.volume = globalMuted ? 0 : globalVolume;
+        }
+    });
+}
+
+function toggleGlobalMute() {
+    globalMuted = !globalMuted;
+    document.getElementById('globalMuteBtn').textContent = globalMuted ? '🔇' : '🔊';
+    document.getElementById('fsMuteBtn').textContent = globalMuted ? '🔇' : '🔊';
+    
+    document.querySelectorAll('.video-card video').forEach(v => {
+        const card = v.closest('.video-card');
+        const pid = card.dataset.participantId;
+        if (!card.classList.contains('local') && !participantMuted.get(pid)) {
+            v.volume = globalMuted ? 0 : globalVolume;
+        }
+    });
+    
+    log(globalMuted ? '🔇 Son coupé' : '🔊 Son activé');
+}
+
+function toggleParticipantMute(pid) {
+    const muted = participantMuted.get(pid) || false;
+    participantMuted.set(pid, !muted);
+    const card = document.querySelector(`[data-participant-id="${pid}"]`);
+    if (card) {
+        const video = card.querySelector('video');
+        const btn = card.querySelector('.mute-btn');
+        video.volume = muted ? (globalMuted ? 0 : globalVolume) : 0;
+        btn.textContent = muted ? '🔊' : '🔇';
+        btn.classList.toggle('muted', !muted);
+    }
+}
+
+function enterFullscreen() {
+    document.body.classList.add('fullscreen-mode');
+    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+    log('⛶ Plein écran');
+}
+
+function exitFullscreen() {
+    document.body.classList.remove('fullscreen-mode');
+    if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+}
+
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) document.body.classList.remove('fullscreen-mode');
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'f' && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT') {
+        document.body.classList.contains('fullscreen-mode') ? exitFullscreen() : enterFullscreen();
+    }
+});
+
+// ==========================================
+// API
+// ==========================================
+function getApiUrl() {
+    return document.getElementById('apiUrlInput')?.value || API_URL;
+}
+
+async function loadStages() {
+    try {
+        log('📡 Chargement des stages...');
+        const res = await fetch(`${getApiUrl()}/stages`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        availableStages = data.stages || [];
+        
+        const select = document.getElementById('stageSelect');
+        select.innerHTML = '<option value="">Sélectionner un stage</option>';
+        availableStages.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.arn;
+            opt.textContent = `${s.name} ${s.activeSessionId ? '🟢' : '⚪'}`;
+            select.appendChild(opt);
+        });
+        
+        log(`✅ ${availableStages.length} stage(s)`, 'success');
+        document.getElementById('btnWatch').disabled = false;
+        document.getElementById('btnBroadcast').disabled = false;
+    } catch (err) {
+        log(`❌ ${err.message}`, 'error');
+        document.getElementById('stageSelect').innerHTML = '<option value="">❌ Erreur de chargement</option>';
+    }
+}
+
+async function createStage() {
+    const name = document.getElementById('newStageName').value.trim();
+    if (!name) { showStatus('Entrez un nom', 'error'); return; }
+    
+    try {
+        showStatus('⏳ Création...', 'loading');
+        const res = await fetch(`${getApiUrl()}/stages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        });
+        if (!res.ok) throw new Error((await res.json()).error || `HTTP ${res.status}`);
+        const data = await res.json();
+        showStatus(`✅ Stage "${name}" créé`, 'success');
+        log(`✅ Stage créé: ${name}`, 'success');
+        document.getElementById('newStageName').value = '';
+        await loadStages();
+        document.getElementById('stageSelect').value = data.stage.arn;
+    } catch (err) {
+        showStatus(`❌ ${err.message}`, 'error');
+        log(`❌ ${err.message}`, 'error');
+    }
+}
+
+async function deleteStage() {
+    const arn = document.getElementById('stageSelect').value;
+    if (!arn) { showStatus('Sélectionnez un stage', 'error'); return; }
+    
+    const name = availableStages.find(s => s.arn === arn)?.name || arn;
+    if (!confirm(`Supprimer "${name}" ?`)) return;
+    
+    try {
+        showStatus('⏳ Suppression...', 'loading');
+        const res = await fetch(`${getApiUrl()}/stages`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stageArn: arn })
+        });
+        if (!res.ok) throw new Error((await res.json()).error || `HTTP ${res.status}`);
+        showStatus('✅ Supprimé', 'success');
+        log(`🗑️ Stage supprimé: ${name}`, 'success');
+        await loadStages();
+    } catch (err) {
+        showStatus(`❌ ${err.message}`, 'error');
+        log(`❌ ${err.message}`, 'error');
+    }
+}
+
+async function generateToken(capabilities = 'SUBSCRIBE') {
+    const arn = document.getElementById('stageSelect').value;
+    if (!arn) { showStatus('Sélectionnez un stage', 'error'); return null; }
+    
+    const userId = document.getElementById('userNameInput').value.trim() || `User-${Math.random().toString(36).substr(2,6)}`;
+    const duration = parseInt(document.getElementById('durationInput').value) || 60;
+    const caps = capabilities.split(',').map(c => c.trim());
+    
+    try {
+        showStatus('⏳ Génération...', 'loading');
+        const res = await fetch(`${getApiUrl()}/token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stageArn: arn, userId, duration, capabilities: caps })
+        });
+        if (!res.ok) throw new Error((await res.json()).error || `HTTP ${res.status}`);
+        const data = await res.json();
+        
+        document.getElementById('tokenInput').value = data.token;
+        parseToken();
+        showStatus(`✅ Token ${capabilities}`, 'success');
+        log(`🎫 Token ${capabilities} pour ${userId}`, 'success');
+        return data.token;
+    } catch (err) {
+        showStatus(`❌ ${err.message}`, 'error');
+        log(`❌ ${err.message}`, 'error');
+        return null;
+    }
+}
+
+function loadManualToken() {
+    parseToken();
+    if (currentToken) {
+        showStatus('✅ Token chargé', 'success');
+        document.getElementById('connectBtn').disabled = false;
+    }
+}
+
+function parseToken() {
+    const token = document.getElementById('tokenInput').value.trim();
+    if (!token) return;
+    
+    try {
+        const parts = token.split('.');
+        if (parts.length !== 3) throw new Error('Format invalide');
+        tokenPayload = JSON.parse(atob(parts[1]));
+        currentToken = token;
+        updateTokenDisplay();
+        log(`🎫 Token: ${tokenPayload.user_id || 'Anonyme'}`, 'success');
+    } catch (err) {
+        log(`❌ Token invalide: ${err.message}`, 'error');
+    }
+}
+
+// ==========================================
+// MAIN ACTIONS - Corrected workflow
+// ==========================================
+
+// "Voir le direct" - Viewer mode
+async function connectAsViewer() {
+    const token = await generateToken('SUBSCRIBE');
+    if (token) {
+        setTimeout(() => connectToStage(), 100);
+    }
+}
+
+// "Intervenir" - Contributor mode (generates PUBLISH+SUBSCRIBE token)
+async function connectAsContributor() {
+    // 1. Generate PUBLISH+SUBSCRIBE token
+    const token = await generateToken('PUBLISH,SUBSCRIBE');
+    if (!token) return;
+    
+    // 2. Show contributor panel and initialize media
+    document.getElementById('contributorPanel').style.display = 'block';
+    document.getElementById('contributorPanel').classList.add('open');
+    
+    // 3. Initialize media devices
+    await initMedia();
+    
+    // 4. Connect to stage
+    setTimeout(() => connectToStage(), 100);
+}
+
+// ==========================================
+// MEDIA
+// ==========================================
+async function initMedia() {
+    if (mediaReady) return;
+    
+    log('🎥 Initialisation média...');
+    document.getElementById('mediaWarning').style.display = 'block';
+    
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { min: 1280, ideal: 1920 }, height: { min: 720, ideal: 1080 }, frameRate: { min: 24, ideal: 30 } },
+            audio: { echoCancellation: true, noiseSuppression: true }
+        });
+        
+        document.getElementById('mediaWarning').style.display = 'none';
+        
+        localVideoTrack = stream.getVideoTracks()[0];
+        localAudioTrack = stream.getAudioTracks()[0];
+        
+        const settings = localVideoTrack.getSettings();
+        log(`📐 ${settings.width}x${settings.height} @ ${settings.frameRate}fps`, 'success');
+        
+        document.getElementById('localPreview').srcObject = new MediaStream([localVideoTrack]);
+        
+        document.getElementById('cameraToggle').disabled = false;
+        document.getElementById('micToggle').disabled = false;
+        
+        await listDevices();
+        mediaReady = true;
+        initVuMeter();
+        
+        // Enable broadcast button if connected with publish permission
+        if (stage && tokenPayload?.capabilities?.allow_publish) {
+            document.getElementById('broadcastBtn').disabled = false;
+        }
+        
+        log('✅ Média prêt', 'success');
+    } catch (err) {
+        log(`❌ ${err.message}`, 'error');
+        document.getElementById('mediaWarning').innerHTML = `❌ ${err.message}`;
+    }
+}
+
+async function listDevices() {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    
+    const camSelect = document.getElementById('cameraSelect');
+    const micSelect = document.getElementById('micSelect');
+    
+    camSelect.innerHTML = '';
+    micSelect.innerHTML = '';
+    
+    devices.filter(d => d.kind === 'videoinput').forEach((d, i) => {
+        const opt = document.createElement('option');
+        opt.value = d.deviceId;
+        opt.textContent = d.label || `Caméra ${i+1}`;
+        camSelect.appendChild(opt);
+    });
+    
+    devices.filter(d => d.kind === 'audioinput').forEach((d, i) => {
+        const opt = document.createElement('option');
+        opt.value = d.deviceId;
+        opt.textContent = d.label || `Micro ${i+1}`;
+        micSelect.appendChild(opt);
+    });
+}
+
+async function switchCamera() {
+    const deviceId = document.getElementById('cameraSelect').value;
+    if (!deviceId || !mediaReady) return;
+    
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { deviceId: { exact: deviceId }, width: { min: 1280, ideal: 1920 }, height: { min: 720, ideal: 1080 } }
+        });
+        if (localVideoTrack) localVideoTrack.stop();
+        localVideoTrack = stream.getVideoTracks()[0];
+        document.getElementById('localPreview').srcObject = new MediaStream([localVideoTrack]);
+        if (isPublishing && stage) stage.refreshStrategy();
+        log(`📹 ${localVideoTrack.label}`, 'success');
+    } catch (err) {
+        log(`❌ ${err.message}`, 'error');
+    }
+}
+
+async function switchMicrophone() {
+    const deviceId = document.getElementById('micSelect').value;
+    if (!deviceId || !mediaReady) return;
+    
+    try {
+        stopVuMeter();
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: { deviceId: { exact: deviceId }, echoCancellation: true, noiseSuppression: true }
+        });
+        if (localAudioTrack) localAudioTrack.stop();
+        localAudioTrack = stream.getAudioTracks()[0];
+        initVuMeter();
+        if (isPublishing && stage) stage.refreshStrategy();
+        log(`🎤 ${localAudioTrack.label}`, 'success');
+    } catch (err) {
+        log(`❌ ${err.message}`, 'error');
+    }
+}
+
+function toggleCamera() {
+    if (!localVideoTrack) return;
+    isCameraOn = !isCameraOn;
+    localVideoTrack.enabled = isCameraOn;
+    
+    const btn = document.getElementById('cameraToggle');
+    btn.classList.toggle('active', isCameraOn);
+    btn.classList.toggle('off', !isCameraOn);
+    btn.textContent = isCameraOn ? '📹 Caméra' : '📷 Caméra OFF';
+    
+    if (isPublishing && stage) stage.refreshStrategy();
+    log(isCameraOn ? '📹 Caméra ON' : '📷 Caméra OFF');
+}
+
+function toggleMic() {
+    if (!localAudioTrack) return;
+    isMicOn = !isMicOn;
+    localAudioTrack.enabled = isMicOn;
+    
+    const btn = document.getElementById('micToggle');
+    btn.classList.toggle('active', isMicOn);
+    btn.classList.toggle('off', !isMicOn);
+    btn.textContent = isMicOn ? '🎤 Micro' : '🔇 Micro OFF';
+    
+    if (isPublishing && stage) stage.refreshStrategy();
+    log(isMicOn ? '🎤 Micro ON' : '🔇 Micro OFF');
+}
+
+async function toggleBroadcast() {
+    if (!stage || !tokenPayload?.capabilities?.allow_publish) {
+        log('⚠️ Token Publisher requis', 'warning');
+        showStatus('Générez un token Publisher', 'error');
+        document.getElementById('configPanel').classList.add('open');
+        return;
+    }
+    
+    if (!mediaReady) {
+        await initMedia();
+        if (!mediaReady) return;
+    }
+    
+    isPublishing = !isPublishing;
+    
+    const btn = document.getElementById('broadcastBtn');
+    const badge = document.getElementById('contributorBadge');
+    const dot = document.getElementById('previewDot');
+    
+    if (isPublishing) {
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-danger', 'live');
+        btn.textContent = '⏹ Arrêter la diffusion';
+        badge.textContent = 'EN DIRECT';
+        badge.classList.add('active');
+        dot.classList.add('live');
+        log('🔴 Diffusion démarrée', 'success');
+        addChat('Système', `${tokenPayload.user_id || 'Vous'} diffuse`, true);
+    } else {
+        btn.classList.add('btn-success');
+        btn.classList.remove('btn-danger', 'live');
+        btn.textContent = '🚀 Démarrer la diffusion';
+        badge.textContent = 'Inactif';
+        badge.classList.remove('active');
+        dot.classList.remove('live');
+        log('⏹ Diffusion arrêtée');
+    }
+    
+    stage.refreshStrategy();
+}
+
+// ==========================================
+// VIDEO ELEMENTS
+// ==========================================
+function createVideoCard(pid, stream, userId, streamType) {
+    const card = document.createElement('div');
+    card.className = 'video-card';
+    card.dataset.participantId = pid;
+    card.dataset.streamType = streamType;
+    
+    const isLocal = pid === tokenPayload?.jti;
+    if (isLocal) card.classList.add('local');
+    
+    const video = document.createElement('video');
+    video.autoplay = true;
+    video.playsInline = true;
+    video.setAttribute('webkit-playsinline', 'true'); // iOS Safari
+    video.muted = isLocal;
+    if (!isLocal) video.volume = globalMuted ? 0 : globalVolume;
+    video.srcObject = stream;
+    
+    // iOS/Safari autoplay fix - force play after srcObject is set
+    const forcePlay = () => {
+        video.play().then(() => {
+            log(`▶️ Vidéo ${userId || pid.slice(0,8)} démarrée`, 'success');
+        }).catch(err => {
+            log(`⚠️ Autoplay bloqué: ${err.message}`, 'warning');
+            // Add tap-to-play overlay for mobile
+            if (!card.querySelector('.tap-to-play')) {
+                const tapOverlay = document.createElement('div');
+                tapOverlay.className = 'tap-to-play';
+                tapOverlay.innerHTML = '▶️ Tap pour lire';
+                tapOverlay.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.7);color:white;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:14px;z-index:10;';
+                tapOverlay.onclick = (e) => {
+                    e.stopPropagation();
+                    video.play();
+                    tapOverlay.remove();
+                };
+                card.appendChild(tapOverlay);
+            }
+        });
+    };
+    
+    // Try to play immediately and on loadedmetadata
+    video.addEventListener('loadedmetadata', forcePlay);
+    setTimeout(forcePlay, 100);
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'video-overlay';
+    
+    const name = document.createElement('div');
+    name.className = 'video-name';
+    name.textContent = isLocal ? `Vous (${userId || 'Local'})` : (userId || pid.slice(0,8));
+    
+    const audioBadge = document.createElement('div');
+    audioBadge.className = `video-audio-badge ${streamType === 'video' ? 'muted' : ''}`;
+    audioBadge.textContent = streamType === 'video' ? '🎥' : '🔊';
+    
+    overlay.appendChild(name);
+    overlay.appendChild(audioBadge);
+    
+    if (!isLocal) {
+        const actions = document.createElement('div');
+        actions.className = 'video-actions';
+        
+        const muteBtn = document.createElement('button');
+        muteBtn.className = 'video-action-btn mute-btn';
+        muteBtn.textContent = '🔊';
+        muteBtn.title = 'Couper le son';
+        muteBtn.onclick = (e) => { e.stopPropagation(); toggleParticipantMute(pid); };
+        
+        const fsBtn = document.createElement('button');
+        fsBtn.className = 'video-action-btn';
+        fsBtn.textContent = '⛶';
+        fsBtn.title = 'Plein écran';
+        fsBtn.onclick = (e) => { e.stopPropagation(); video.requestFullscreen?.(); };
+        
+        actions.appendChild(muteBtn);
+        actions.appendChild(fsBtn);
+        card.appendChild(actions);
+    }
+    
+    card.appendChild(video);
+    card.appendChild(overlay);
+    card.addEventListener('dblclick', () => video.requestFullscreen?.());
+    
+    return card;
+}
+
+function combineStreams(pid) {
+    const streams = participantStreams.get(pid);
+    if (!streams?.audio || !streams?.video) return;
+    
+    document.querySelectorAll(`[data-participant-id="${pid}"]`).forEach(el => el.remove());
+    
+    const combined = new MediaStream([...streams.video.getTracks(), ...streams.audio.getTracks()]);
+    streams.combined = combined;
+    participantStreams.set(pid, streams);
+    
+    const p = participants.get(pid);
+    const card = createVideoCard(pid, combined, p?.userId, 'combined');
+    card.classList.add('active');
+    document.getElementById('videoGrid').appendChild(card);
+    updateGridLayout();
+    
+    log(`✅ Flux combiné: ${p?.userId || pid}`, 'success');
+}
+
+function updateGridLayout() {
+    const grid = document.getElementById('videoGrid');
+    const count = grid.querySelectorAll('.video-card').length;
+    grid.classList.remove('single', 'dual');
+    if (count === 1) grid.classList.add('single');
+    else if (count === 2) grid.classList.add('dual');
+}
+
+// ==========================================
+// STAGE CONNECTION
+// ==========================================
+async function connectToStage() {
+    if (!currentToken) { log('❌ Pas de token', 'error'); return; }
+    if (typeof IVSBroadcastClient === 'undefined') { log('❌ SDK non disponible', 'error'); return; }
+    
+    try {
+        log('🔌 Connexion...');
+        updateConnectionStatus('CONNECTING');
+        
+        document.getElementById('btnWatch').disabled = true;
+        document.getElementById('btnBroadcast').disabled = true;
+        document.getElementById('connectBtn').disabled = true;
+        
+        const strategy = {
+            stageStreamsToPublish: () => {
+                if (!isPublishing || !tokenPayload?.capabilities?.allow_publish) return [];
+                const streams = [];
+                if (localVideoTrack && isCameraOn) {
+                    streams.push(new IVSBroadcastClient.LocalStageStream(localVideoTrack, {
+                        simulcast: { enabled: false }, minBitrate: 2500, maxBitrate: 8500, maxFramerate: 30
+                    }));
+                }
+                if (localAudioTrack && isMicOn) {
+                    streams.push(new IVSBroadcastClient.LocalStageStream(localAudioTrack));
+                }
+                return streams;
+            },
+            shouldPublishParticipant: () => isPublishing && tokenPayload?.capabilities?.allow_publish,
+            shouldSubscribeToParticipant: (p) => {
+                if (p.id === tokenPayload?.jti) return IVSBroadcastClient.SubscribeType.NONE;
+                return IVSBroadcastClient.SubscribeType.AUDIO_VIDEO;
+            }
+        };
+        
+        stage = new IVSBroadcastClient.Stage(currentToken, strategy);
+        
+        stage.on(IVSBroadcastClient.StageEvents.STAGE_CONNECTION_STATE_CHANGED, (state) => {
+            log(`📡 ${state}`);
+            updateConnectionStatus(state);
+            
+            if (state === IVSBroadcastClient.StageConnectionState.CONNECTED) {
+                document.getElementById('disconnectBtn').disabled = false;
+                addChat('Système', 'Connecté au stage', true);
+                
+                // Enable broadcast button if we have publish permission and media is ready
+                if (tokenPayload?.capabilities?.allow_publish && mediaReady) {
+                    document.getElementById('broadcastBtn').disabled = false;
+                }
+            }
+        });
+        
+        stage.on(IVSBroadcastClient.StageEvents.STAGE_PARTICIPANT_JOINED, (p) => {
+            log(`👤 +${p.userId || p.id.slice(0,8)}`);
+            participants.set(p.id, p);
+            participantStreams.set(p.id, {});
+            updateParticipantCount();
+            addChat('Système', `${p.userId || 'Participant'} a rejoint`, true);
+        });
+        
+        stage.on(IVSBroadcastClient.StageEvents.STAGE_PARTICIPANT_LEFT, (p) => {
+            log(`👤 -${p.userId || p.id.slice(0,8)}`);
+            participants.delete(p.id);
+            participantStreams.delete(p.id);
+            participantMuted.delete(p.id);
+            document.querySelectorAll(`[data-participant-id="${p.id}"]`).forEach(el => el.remove());
+            updateParticipantCount();
+            updateGridLayout();
+            addChat('Système', `${p.userId || 'Participant'} a quitté`, true);
+        });
+        
+        stage.on(IVSBroadcastClient.StageEvents.STAGE_PARTICIPANT_STREAMS_ADDED, (p, streams) => {
+            log(`📺 Flux de ${p.userId || p.id.slice(0,8)} (${streams.length} stream(s))`);
+            
+            // Remove empty state
+            const grid = document.getElementById('videoGrid');
+            if (grid.querySelector('.empty-state')) grid.innerHTML = '';
+            
+            const existingStreams = participantStreams.get(p.id) || {};
+            
+            streams.forEach((stream) => {
+                // IVS SDK provides mediaStreamTrack directly, NOT mediaStream
+                const track = stream.mediaStreamTrack;
+                if (!track) {
+                    log(`  ⚠️ Stream sans track`, 'warning');
+                    return;
+                }
+                
+                const mediaStream = new MediaStream([track]);
+                const streamType = track.kind; // 'audio' or 'video'
+                existingStreams[streamType] = mediaStream;
+                
+                log(`  ✔ ${streamType}: ${track.label || 'no label'}`);
+            });
+            
+            participantStreams.set(p.id, existingStreams);
+            
+            // Remove any existing cards for this participant
+            document.querySelectorAll(`[data-participant-id="${p.id}"]`).forEach(el => el.remove());
+            
+            // Create video elements for available streams
+            if (existingStreams.video) {
+                const card = createVideoCard(p.id, existingStreams.video, p.userId, 'video');
+                grid.appendChild(card);
+            }
+            if (existingStreams.audio && !existingStreams.video) {
+                // Only show audio-only if no video
+                const card = createVideoCard(p.id, existingStreams.audio, p.userId, 'audio');
+                grid.appendChild(card);
+            }
+            
+            updateGridLayout();
+            
+            // Try to combine audio+video after a short delay
+            setTimeout(() => {
+                const data = participantStreams.get(p.id);
+                if (data?.audio && data?.video && !data?.combined) {
+                    combineStreams(p.id);
+                }
+            }, 1000);
+        });
+        
+        stage.on(IVSBroadcastClient.StageEvents.STAGE_PARTICIPANT_STREAMS_REMOVED, (p, streams) => {
+            log(`📺 Flux retiré: ${p.userId || p.id.slice(0,8)}`);
+            streams.forEach(s => {
+                const streamType = s.streamType === IVSBroadcastClient.StreamType.VIDEO ? 'video' : 'audio';
+                document.querySelector(`[data-participant-id="${p.id}"][data-stream-type="${streamType}"]`)?.remove();
+            });
+            updateGridLayout();
+        });
+        
+        stage.on(IVSBroadcastClient.StageEvents.ERROR, (err) => {
+            log(`❌ Erreur: ${err.message}`, 'error');
+            updateConnectionStatus('ERROR');
+        });
+        
+        await stage.join();
+        log('✅ Connecté au stage', 'success');
+        
+    } catch (err) {
+        log(`❌ ${err.message}`, 'error');
+        updateConnectionStatus('ERROR');
+        showStatus(`Erreur: ${err.message}`, 'error');
+        document.getElementById('btnWatch').disabled = false;
+        document.getElementById('btnBroadcast').disabled = false;
+        document.getElementById('connectBtn').disabled = false;
+    }
+}
+
+async function disconnect() {
+    if (stage) {
+        try {
+            isPublishing = false;
+            await stage.leave();
+            stage = null;
+            log('🔌 Déconnecté');
+        } catch (err) {
+            log(`❌ ${err.message}`, 'error');
+        }
+    }
+    
+    // Clean up UI
+    participants.clear();
+    participantStreams.clear();
+    participantMuted.clear();
+    
+    const grid = document.getElementById('videoGrid');
+    grid.innerHTML = `
+        <div class="empty-state">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+            </svg>
+            <p class="empty-state-text">Sélectionnez un stage et cliquez sur "Voir le direct" ou "Intervenir" pour commencer</p>
+        </div>
+    `;
+    
+    updateConnectionStatus('DISCONNECTED');
+    updateParticipantCount();
+    
+    // Reset buttons
+    document.getElementById('btnWatch').disabled = false;
+    document.getElementById('btnBroadcast').disabled = false;
+    document.getElementById('connectBtn').disabled = false;
+    document.getElementById('disconnectBtn').disabled = true;
+    
+    const broadcastBtn = document.getElementById('broadcastBtn');
+    broadcastBtn.classList.add('btn-success');
+    broadcastBtn.classList.remove('btn-danger', 'live');
+    broadcastBtn.textContent = '🚀 Démarrer la diffusion';
+    broadcastBtn.disabled = true;
+    
+    document.getElementById('contributorBadge').textContent = 'Inactif';
+    document.getElementById('contributorBadge').classList.remove('active');
+    document.getElementById('previewDot').classList.remove('live');
+    
+    addChat('Système', 'Déconnecté', true);
+}
+
+// ==========================================
+// DIAGNOSTIC
+// ==========================================
+function runDiagnostic() {
+    log('🔍 === DIAGNOSTIC ===' );
+    log(`SDK: ${typeof IVSBroadcastClient !== 'undefined' ? '✅' : '❌'}`);
+    log(`Stage: ${stage ? '✅ Connecté' : '⚪ Non connecté'}`);
+    log(`Token: ${currentToken ? '✅' : '⚪ Non défini'}`);
+    
+    if (tokenPayload) {
+        log(`  User: ${tokenPayload.user_id || tokenPayload.jti?.slice(0,8)}`);
+        log(`  Publish: ${tokenPayload.capabilities?.allow_publish ? '✅' : '❌'}`);
+        log(`  Subscribe: ${tokenPayload.capabilities?.allow_subscribe ? '✅' : '❌'}`);
+    }
+    
+    log(`Media: ${mediaReady ? '✅' : '⚪'}`);
+    log(`  Vidéo: ${localVideoTrack ? '✅ ' + localVideoTrack.label : '❌'}`);
+    log(`  Audio: ${localAudioTrack ? '✅ ' + localAudioTrack.label : '❌'}`);
+    log(`Publishing: ${isPublishing ? '🔴 OUI' : '⚪ NON'}`);
+    log(`Participants: ${participants.size}`);
+    log('🔍 === FIN DIAGNOSTIC ===');
+}
+
+// ==========================================
+// INIT
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    loadTheme();
+    loadStages();
+    
+    // Load saved values
+    const savedApi = localStorage.getItem('ivs-api-url');
+    if (savedApi) document.getElementById('apiUrlInput').value = savedApi;
+    
+    const savedName = localStorage.getItem('ivs-username');
+    if (savedName) document.getElementById('userNameInput').value = savedName;
+    
+    // Save values on change
+    document.getElementById('apiUrlInput').addEventListener('change', (e) => {
+        localStorage.setItem('ivs-api-url', e.target.value);
+    });
+    
+    document.getElementById('userNameInput').addEventListener('change', (e) => {
+        localStorage.setItem('ivs-username', e.target.value);
+    });
+    
+    log('✅ IVS Studio v35 initialisé', 'success');
+});
+    </script>
+</body>
+</html>
